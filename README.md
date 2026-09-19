@@ -115,6 +115,68 @@ This adds new columns to `issues` (`resolution_report`, `resolution_report_at`, 
 
 Also fixed: the issue list is now polled every 30s (and refreshed on tab focus), same as notifications already were — previously a signed-in user's own views (like "My reported issues") only ever reflected changes made in their own session and went stale until a manual page reload.
 
+
+
+## Milestone 3 — CI/CD Integration & Quality Analytics
+
+### Objective
+Integrate BugFlow with the development workflow by connecting Git commits with issue tracking and providing quality analytics.
+
+### Key Features
+
+- **Git Webhook Integration**
+  - Simulates Git commit webhooks.
+  - Detects issue references such as:
+    - `fixes #2`
+    - `closes #2`
+    - `resolves #2`
+  - Automatically transitions the referenced issue to `QA_VERIFICATION`.
+
+- **Quality Metrics Dashboard**
+  - Fix Rate
+  - Mean Time to Resolution (MTTR)
+  - Defect Leakage Rate
+  - Backlog Health Score
+
+- **Interactive Analytics**
+  - Defect trend charts
+  - Severity breakdown
+  - Workflow pipeline visualization
+  - Interactive Plotly-based charts
+
+- **REST API Explorer**
+  - Test available BugFlow API endpoints directly from the dashboard.
+  - View live JSON API responses.
+
+- **Webhook Simulator**
+  - Select an issue from the dropdown.
+  - Generate a commit message containing the selected issue number.
+  - Simulate a Git commit and observe the resulting issue transition.
+
+- **Reports & Export**
+  - Export quality reports as PDF.
+  - Export bug registry data as CSV.
+
+### Technology Used
+
+- Node.js
+- Express.js
+- PostgreSQL
+- React.js
+- Plotly.js
+- Git Webhooks
+- REST APIs
+
+### Milestone 3 Outcome
+
+BugFlow connects issue management with the CI/CD workflow and provides real-time visibility into software quality, defect trends, workflow status, and development metrics.
+
+This matches the Module 3 requirements you were working with: Git webhook parsing, automatic QA transition, quality metrics, Plotly charts, PDF/CSV exports, REST API explorer, and webhook simulation.
+
+After editing README
+
+Because you've already pushed the initial project, you just need:
+
 ## Milestone 4 — Optimization, 50k+ Scale Testing & Finalization
 
 The Milestone 4 spec was written for a Python/FastAPI/SQLAlchemy/pytest stack;
