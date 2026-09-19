@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bugflow
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - bugflow_pgdata:/var/lib/postgresql/data
+      # Runs automatically the FIRST time this volume is created — this is
+      # what makes `docker compose up --build` a true single-command setup
+      # (no manual `psql -f schema.sql` step required, unlike local dev).
+      - ./server/src/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bugflow"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  server:
+    build: ./server
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: bugflow
+      JWT_SECRET: change_this_in_any_real_deployment
+      PORT: 4000
+      PG_POOL_MAX: 30
+      PG_POOL_MIN: 5
+    ports:
+      - "4000:4000"
+    # Seed the 9 demo accounts + 16 mock issues once, then start the API.
+    # `node src/seed.js` is idempotent (ON CONFLICT DO UPDATE), so re-running
+    # this on every container restart is safe.
+    command: sh -c "node src/seed.js && node src/index.js"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      start_period: 10s
+      retries: 5
+
+  client:
+    build: ./client
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "5173:80"
+
+volumes:
+  bugflow_pgdata:
